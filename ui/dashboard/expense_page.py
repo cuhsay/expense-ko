@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QFormLayout, QLineEdit, QComboBox, QDateEdit,
-    QPushButton, QLabel, QTableWidget, QTableWidgetItem, QAbstractItemView,
+    QPushButton, QLabel, QTableWidget, QTableWidgetItem, QAbstractItemView, QMessageBox,
 )
 from PyQt6.QtCore import QDate
 
@@ -129,6 +129,14 @@ class ExpensePage(QWidget):
         self.custom_input.clear()
         self.reload_categories()
         self.refresh_table()
+
+        allowance = self.tracker.user.allowance
+        if allowance < 0:
+            QMessageBox.warning(
+                self,
+                "Overspending warning",
+                f"You overspent! You are ₱{-allowance:,.2f} over your allowance.",
+            )
 
     def delete_expense(self):
         row = self.table.currentRow()

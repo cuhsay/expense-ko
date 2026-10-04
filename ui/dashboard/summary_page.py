@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QDate
 from dashboard.view_summary import ViewSummary
 from ui.dashboard.styled_text import StyledText, PINK, MUTED
+from typing import override
 
 
 class SummaryPage(QWidget):
@@ -36,6 +37,7 @@ class SummaryPage(QWidget):
         self.period_input.currentIndexChanged.connect(self.refresh)
         self.date_input.dateChanged.connect(self.refresh)
 
+    @override
     def showEvent(self, event):
         self.refresh()
         super().showEvent(event)
