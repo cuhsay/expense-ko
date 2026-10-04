@@ -210,47 +210,46 @@ Note: `Storage.save()` clears both tables and writes the current data back in a 
 
 ## Screenshots
 
-> Add your own screenshots to the `screenshots/` folder and make sure the file names match.
-
 **Welcome screen**
 
-![Welcome screen](screenshots/login.png)
+![Welcome screen](screenshots/welcome_screen.png)
 
 The first-launch screen that asks for the user's preferred name.
 
 **Home page**
 
-![Home page](screenshots/home.png)
+![Home page](screenshots/home_page.png)
 
 The welcome message, the remaining allowance and spent-today cards.
 
 **Expenses page**
 
-![Expenses page](screenshots/expenses.png)
+![Expenses page](screenshots/expenses_page.png)
 
 The new expense form, the custom category box, and the table of saved expenses with the delete button.
 
 **Overspending warning**
 
-![Overspending warning](screenshots/overspent.png)
+![Overspending warning](screenshots/overspending_warning.png)
 
 The pop-up that appears when an expense makes the remaining allowance go below zero.
 
 **Allowance page**
 
-![Allowance page](screenshots/allowance.png)
+![Allowance page](screenshots/allowance_page.png)
 
 Shows the current allowance and lets the user add to it or set it.
 
 **Summary page**
 
-![Summary page](screenshots/summary.png)
+![Summary page](screenshots/summary_page1.png)
+![Summary page](screenshots/summary_page2.png)
 
 The daily or weekly summary of spending.
 
 **Compare page**
 
-![Compare page](screenshots/compare.png)
+![Compare page](screenshots/compare_page.png)
 
 The comparison of two weeks or two days, with the difference between them.
 
@@ -290,5 +289,5 @@ The system was tested manually by running the application and checking the resul
 
 ## Author
 
-- **Name:** [Your Full Name]
-- **Section:** [Your Section]
+- **Name:** Cassandra Gayle Rabanillo
+- **Section:** CS26L(3581) BSCS - 2ND YEAR
