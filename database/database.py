@@ -2,14 +2,15 @@ import sqlite3
 from allowance_management.models import User
 from expense_tracking.models import Expense
 
+
 class Storage:
     def __init__(self, filename: str = "expenseko.db"):
         self.filename = filename
         self.create_tables()
 
     def create_tables(self):
-        with sqlite3.connect(self.filename) as conn:
-            conn.execute("""
+        with sqlite3.connect(self.filename) as connection:
+            connection.execute("""
                 CREATE TABLE IF NOT EXISTS user (
                     id INTEGER PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -17,7 +18,7 @@ class Storage:
                     next_expense_id INTEGER NOT NULL
                 )
             """)
-            conn.execute("""
+            connection.execute("""
                 CREATE TABLE IF NOT EXISTS expenses (
                     id INTEGER PRIMARY KEY,
                     category TEXT NOT NULL,
@@ -28,33 +29,34 @@ class Storage:
             """)
 
     def save(self, user: User):
-        with sqlite3.connect(self.filename) as conn:
-            conn.execute("DELETE FROM user")
-            conn.execute("DELETE FROM expenses")
-            conn.execute(
+        with sqlite3.connect(self.filename) as connection:
+            connection.execute("DELETE FROM user")
+            connection.execute("DELETE FROM expenses")
+            connection.execute(
                 "INSERT INTO user (id, name, allowance, next_expense_id) VALUES (1, ?, ?, ?)",
                 (user.name, user.allowance, user.next_expense_id),
             )
-            for e in user.expenses.values():
-                conn.execute(
+            for expense in user.expenses.values():
+                connection.execute(
                     "INSERT INTO expenses (id, category, amount, date, note) VALUES (?, ?, ?, ?, ?)",
-                    (e.id, e.category, e.amount, e.date, e.note),
+                    (expense.id, expense.category, expense.amount, expense.date, expense.note),
                 )
 
     def load(self, default_name: str = "User"):
-        with sqlite3.connect(self.filename) as conn:
-            row = conn.execute(
+        with sqlite3.connect(self.filename) as connection:
+            user_row = connection.execute(
                 "SELECT name, allowance, next_expense_id FROM user WHERE id = 1"
             ).fetchone()
-            if row is None:
-                return User(default_name)
-            expense_rows = conn.execute(
+            expense_rows = connection.execute(
                 "SELECT id, category, amount, date, note FROM expenses"
             ).fetchall()
 
+        if user_row is None:
+            return User(default_name)
+
         expenses = {}
-        for r in expense_rows:
-            expense = Expense(*r)
+        for expense_row in expense_rows:
+            expense = Expense(*expense_row)
             expenses[expense.id] = expense
 
-        return User(row[0], row[1], expenses, row[2])
+        return User(user_row[0], user_row[1], expenses, user_row[2])

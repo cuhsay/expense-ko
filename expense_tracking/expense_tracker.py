@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from allowance_management.models import User
-from expense_tracking.models import Expense
+from expense_tracking.models import Expense, CATEGORIES
+
 
 @dataclass
 class ExpenseTracker:
@@ -38,6 +39,13 @@ class ExpenseTracker:
                 category_totals[expense.category] = category_totals.get(expense.category, 0) + expense.amount
                 total += expense.amount
         return category_totals, total
+
+    def get_categories(self):
+        categories = list(CATEGORIES)
+        for expense in self.user.expenses.values():
+            if expense.category not in categories:
+                categories.insert(-1, expense.category)
+        return categories
 
 
 
