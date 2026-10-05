@@ -3,6 +3,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
+from typing import override
 
 KITTY_PATH = Path(__file__).resolve().parent.parent.parent / "images" / "kitty.png"
 
@@ -54,6 +55,7 @@ class HomePage(QWidget):
         card_layout.addWidget(value_label)
         return card, value_label
 
+    @override
     def showEvent(self, event):
         self.refresh()
         super().showEvent(event)

@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import(
 from pathlib import Path
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
+from typing import override
 
 CAT_PATH = Path(__file__).resolve().parent.parent.parent / "images" / "cat.jpg"
 
@@ -48,7 +49,7 @@ class AllowancePage(QWidget):
         layout.addWidget(cat, 1, Qt.AlignmentFlag.AlignCenter)
         layout.addStretch()
 
-
+    @override
     def showEvent(self, event):
         self.refresh()
         super().showEvent(event)

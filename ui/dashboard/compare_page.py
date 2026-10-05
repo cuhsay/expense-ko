@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QDate
 from dashboard.compare_periods import ComparePeriods
 from ui.dashboard.styled_text import StyledText, PINK, MUTED
-
+from typing import override
 
 
 class ComparePage(QWidget):
@@ -48,6 +48,7 @@ class ComparePage(QWidget):
         layout.addWidget(self.output)
         self.text = StyledText(self.output)
 
+    @override
     def showEvent(self, event):
         self.run_compare()
         super().showEvent(event)
