@@ -106,7 +106,7 @@ ExpenseKo/
 
 1. Clone the repository:
 ```
-   git clone https://github.com/cuhsay/ExpenseKo.git
+   git clone https://github.com/cuhsay/expense-ko.git
    cd ExpenseKo
 ```
 2. Create a virtual environment:
