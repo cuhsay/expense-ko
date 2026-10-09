@@ -109,6 +109,7 @@ class ExpensePage(QWidget):
             if custom:
                 category = custom
 
+        #ga add si tracker ug expense sa user
         try:
             self.tracker.add_expense(
                 amount,
