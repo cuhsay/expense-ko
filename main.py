@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use("QtAgg")
 import sys
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,

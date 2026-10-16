@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import date
 
-CATEGORIES = ["Food", "Load", "Transportation", "Others"]
+CATEGORIES = ["Food", "Load", "Transportation"]
 
 @dataclass
 class Expense:

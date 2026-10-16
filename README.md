@@ -5,7 +5,7 @@
 
 ## Project Description
 
-ExpenseKo helps a student keep track of their allowance and daily spending. The user enters their allowance, records each expense with a category, date and note, and the system updates the remaining allowance automatically. It warns the user when they overspend, shows daily and weekly summaries, and can compare the spending of two days or two weeks.
+ExpenseKo helps a student keep track of their allowance and daily spending. The user enters their allowance, records each expense with a category, date and note, and the system updates the remaining allowance automatically. It warns the user when they overspend, shows daily and weekly summaries with charts, and can compare the spending of two days or two weeks.
 
 **Problem it addresses:** Students who receive a regular allowance often run out of money without knowing where it went. Writing expenses down by hand is easy to forget, and adding everything up is tedious. ExpenseKo records spending in one place, calculates what is left, and shows where the money went.
 
@@ -20,16 +20,33 @@ ExpenseKo helps a student keep track of their allowance and daily spending. The 
 
 ## Features
 
-- **Welcome screen:** On the first launch, the app asks for the user's preferred name. The Home page then greets the user by name.
-- **Home dashboard:** Shows the remaining allowance and the amount spent today.
-- **Add expense:** Records the amount, category, date and an optional note, then deducts the amount from the allowance.
+- **Allowance entries**
+  - **Create:** Add a dated allowance entry that adds to the running total.
+  - **Read:** View all allowance entries in a table with ID, date and amount.
+  - **Update:** Edit an existing allowance entry (amount and date); the total adjusts automatically.
+  - **Delete:** Remove an allowance entry; its amount is subtracted from the total.
+
+- **Expenses**
+  - **Create:** Record an expense with amount, category, date and optional note; the amount is deducted from the allowance.
+  - **Read:** View all expenses in a table with ID, category, amount, date and note.
+  - **Update:** Edit an existing expense (amount, category, date, note); the allowance adjusts automatically.
+  - **Delete:** Remove a selected expense; its amount is returned to the allowance.
+
+- **Categories**
+  - **Create:** Add a new custom category through the Expenses page (+ New Category button). Persisted in the database across sessions.
+  - **Read:** All categories (default + custom) appear in the category combo box.
+  - **Delete:** Remove a custom category (only if no existing expenses use it).
+
 - **Overspending warning:** A pop-up warns the user ("You overspent!") when an expense makes the remaining allowance go below zero, and shows how much they are over by.
-- **Custom categories:** Choosing "Others" lets the user type a new category, which then appears in the category list.
-- **Delete expense:** Removes a selected expense from the table and returns its amount to the allowance.
-- **Allowance management:** Adds to the current allowance or sets it to a new amount.
-- **Summary:** Shows spending for one day (totals per category) or a full week (Monday to Sunday, with each day's expenses).
-- **Compare periods:** Compares the total spending of two weeks or two days and shows which one cost more.
-- **Data persistence:** Everything is saved to an SQLite database and loaded again on the next launch.
+
+- **Home dashboard:** Shows the remaining allowance and the amount spent today.
+
+- **Summary:** Shows spending for one day (category breakdown with a pie chart) or a full week (daily totals with a bar chart).
+
+- **Compare periods:** Compares the total spending of two weeks or two days and shows which one cost more, with a grouped bar chart.
+
+- **Data persistence:** Everything (user name, allowance entries, expenses, custom categories) is saved to an SQLite database and loaded again on the next launch.
+
 - **Input validation:** Invalid input (letters in an amount field, zero or negative amounts) shows a message instead of crashing the program.
 
 ## Technologies Used
@@ -39,6 +56,7 @@ ExpenseKo helps a student keep track of their allowance and daily spending. The 
 | Programming language | Python 3.9 or newer |
 | GUI framework | PyQt6, styled with QSS (Qt Style Sheets) |
 | Database | SQLite, accessed through Python's built-in `sqlite3` module |
+| Charts | Matplotlib (embedded in PyQt6 with `FigureCanvasQTAgg`) |
 | Other libraries | `dataclasses`, `datetime`, `pathlib`, `sys` (all from the Python standard library) |
 | Tools | PyCharm, Git and GitHub |
 
@@ -53,14 +71,14 @@ ExpenseKo/
 │   ├── kitty.png
 │   └── cat.jpg
 ├── screenshots/
-├   └── allowance_page.png
-├   └── compare_page.png
-├   └── expenses_page.png
-├   └── home_page.png
-├   └── overspending_warning.png
-├   └── summary_page1.png
-├   └── summary_page2.png
-├   └── welcome_screen.png
+│   ├── allowance_page.png
+│   ├── compare_page.png
+│   ├── expenses_page.png
+│   ├── home_page.png
+│   ├── overspending_warning.png
+│   ├── summary_page1.png
+│   ├── summary_page2.png
+│   └── welcome_screen.png
 ├── allowance_management/
 │   ├── __init__.py
 │   ├── allowance_manager.py
@@ -72,20 +90,20 @@ ExpenseKo/
 ├── database/
 │   ├── __init__.py
 │   └── database.py
-└── dashboard/
-│       ├── __init__.py
-│       ├── view_summary.py
-│       └── compare_periods.py
-└── ui/dashboard/
+├── dashboard/
 │   ├── __init__.py
-│   ├── login_dialog.py
-│   ├── home_page.py
-│   ├── expense_page.py
-│   ├── allowance_page.py
-│   ├── summary_page.py
-│   ├── compare_page.py
-│   ├── styled_text.py
-    
+│   ├── view_summary.py
+│   └── compare_periods.py
+└── ui/dashboard/
+    ├── __init__.py
+    ├── login_dialog.py
+    ├── home_page.py
+    ├── expense_page.py
+    ├── allowance_page.py
+    ├── summary_page.py
+    ├── compare_page.py
+    ├── chart_widgets.py
+    └── styled_text.py
 ```
 
 | File or folder | Purpose |
@@ -93,11 +111,12 @@ ExpenseKo/
 | `main.py` | Entry point. Loads the saved data, asks for the user's name on first launch, builds the main window and its styles, and starts the app. |
 | `images/` | Pictures used in the interface. |
 | `screenshots/` | Screenshots used in this README. |
-| `allowance_management/` | Allowance feature. `models.py` defines the `User` class, and `allowance_manager.py` defines `AllowanceManager`, which adds or sets the allowance. |
-| `expense_tracking/` | Expense feature. `models.py` defines the `Expense` class and the default categories, and `expense_tracker.py` defines `ExpenseTracker`, which adds and deletes expenses and calculates totals. |
+| `allowance_management/` | Allowance feature. `models.py` defines the `User` and `Allowance` classes, and `allowance_manager.py` defines `AllowanceManager`, which adds, edits and deletes allowance entries. |
+| `expense_tracking/` | Expense feature. `models.py` defines the `Expense` class and the default categories, and `expense_tracker.py` defines `ExpenseTracker`, which adds, edits and deletes expenses, calculates totals, and manages custom categories. |
 | `database/` | `database.py` defines `Storage`, which creates the SQLite tables and saves and loads the data. |
 | `ui/dashboard` | Everything the user sees: the login dialog and one page for each sidebar button. |
 | `dashboard/` | The logic behind the report pages: `view_summary.py` prepares daily and weekly summaries, and `compare_periods.py` compares two periods and finds the week range for a date. |
+| `ui/chart_widgets.py` | A helper that wraps a Matplotlib figure and canvas for embedding charts in PyQt6 pages. |
 | `ui/styled_text.py` | A small helper that adds bold, colored text to the Summary and Compare text boxes. |
 
 ## Installation and Setup
@@ -118,7 +137,7 @@ ExpenseKo/
    - macOS / Linux: `source .venv/bin/activate`
 4. Install the dependency:
 ```
-   pip install PyQt6
+   pip install PyQt6 matplotlib
 ```
 5. Run the program **from the project folder** (the one that contains `main.py`):
 ```
@@ -130,13 +149,12 @@ The database file `expenseko.db` is created automatically the first time the pro
 ## How to Use the System
 
 1. Run `main.py`. On the first launch, type your preferred name in the welcome screen and click **Continue**.
-2. Open **Allowance** and enter an amount. Click **Add allowance** to add to your current allowance, or **Set allowance** to replace it.
-3. Open **Expenses**. Enter the amount, choose a category, pick a date and add an optional note, then click **Save**. If you choose "Others", a box appears where you can type a new category name. If the expense is more than your remaining allowance, a warning pop-up tells you how much you overspent.
-4. To delete an expense, click its row in the "Your expenses" table and click **Delete selected**.
-5. Open **Home** to see your welcome message, the remaining allowance, and how much you spent today.
-6. Open **Summary**, choose **Day** or **Week**, and pick a date to see the spending for that day or week.
-7. Open **Compare**, choose **Weeks** or **Days**, pick two dates (for weeks, any date inside each week), and click **Compare**.
-8. Close the program whenever you like. Your data is saved automatically and will be there next time.
+2. Open **Allowance**. Enter an amount, pick a date, and click **Add** to record a new allowance entry. Select a row and click **Edit selected** to modify it, or **Delete selected** to remove it.
+3. Open **Expenses**. Enter the amount, choose a category, pick a date and add an optional note, then click **Add**. Select a row and click **Edit selected** to modify it, or **Delete selected** to remove it. Use **+ New Category** to add a custom category, or **- Remove Category** to delete one. If the expense is more than your remaining allowance, a warning pop-up tells you how much you overspent.
+4. Open **Home** to see your welcome message, the remaining allowance, and how much you spent today.
+5. Open **Summary**, choose **Day** or **Week**, and pick a date to see the spending for that day or week with a chart.
+6. Open **Compare**, choose **Weeks** or **Days**, pick two dates (for weeks, any date inside each week), and click **Compare**.
+7. Close the program whenever you like. Your data is saved automatically and will be there next time.
 
 ## OOP Implementation
 
@@ -144,13 +162,15 @@ The database file `expenseko.db` is created automatically the first time the pro
 
 | Class | File | Role |
 |---|---|---|
-| `User` | `allowance_management/models.py` | Holds the user's name, allowance, expenses and the counter for the next expense ID. |
+| `User` | `allowance_management/models.py` | Holds the user's name, allowance, allowance entries, expenses, custom categories, and the counters for next IDs. |
+| `Allowance` | `allowance_management/models.py` | Holds one allowance entry: ID, amount and date. |
 | `Expense` | `expense_tracking/models.py` | Holds one expense: ID, category, amount, date and note. |
-| `AllowanceManager` | `allowance_management/allowance_manager.py` | Adds to or sets the allowance, rejecting invalid amounts. |
-| `ExpenseTracker` | `expense_tracking/expense_tracker.py` | Adds and deletes expenses, updates the allowance, and calculates category totals and category lists. |
-| `Storage` | `database/database.py` | Creates the tables and saves and loads the user and expenses. |
+| `AllowanceManager` | `allowance_management/allowance_manager.py` | Adds, edits and deletes allowance entries, rejecting invalid amounts. |
+| `ExpenseTracker` | `expense_tracking/expense_tracker.py` | Adds, edits and deletes expenses, updates the allowance, calculates category totals, and manages custom categories. |
+| `Storage` | `database/database.py` | Creates the tables and saves and loads the user, expenses, allowances and custom categories. |
 | `ViewSummary` | `dashboard/view_summary.py` | Prepares the daily and weekly summary data. |
 | `ComparePeriods` | `dashboard/compare_periods.py` | Prepares the comparison of two days or two weeks. |
+| `ChartWidget` | `ui/chart_widgets.py` | Wraps a Matplotlib figure and canvas for embedding charts. |
 | `MainWindow`, `LoginDialog`, `HomePage`, `ExpensePage`, `AllowancePage`, `SummaryPage`, `ComparePage` | `main.py` and `ui/` | The windows and pages of the interface. |
 | `StyledText` | `ui/styled_text.py` | Writes styled text into a text box. |
 
@@ -158,7 +178,7 @@ The database file `expenseko.db` is created automatically the first time the pro
 
 ### Encapsulation
 
-- The data and the operations on it are grouped into classes. The `User` object holds the data, while `AllowanceManager` and `ExpenseTracker` change it through methods such as `add_allowance`, `add_expense` and `delete_expense`. These methods check the input first and raise a `ValueError` for invalid values, so the data is never changed by invalid input.
+- The data and the operations on it are grouped into classes. The `User` object holds the data, while `AllowanceManager` and `ExpenseTracker` change it through methods such as `add_allowance`, `add_expense`, `edit_expense` and `delete_expense`. These methods check the input first and raise a `ValueError` for invalid values, so the data is never changed by invalid input.
 - All SQL is hidden inside `Storage`. The pages only call `save` and `load` and never write SQL themselves.
 - The report classes (`ViewSummary`, `ComparePeriods`) only return data, and the pages decide how to display it. Calculation and display are kept separate.
 - Python does not enforce private attributes, so this encapsulation works by design and convention. The pages do read values such as `user.allowance` directly for display, but they change data only through the manager methods.
@@ -185,6 +205,7 @@ ExpenseKo uses a single SQLite file, `expenseko.db`, which is created automatica
 | `name` | TEXT | The user's preferred name. |
 | `allowance` | REAL | The remaining allowance. |
 | `next_expense_id` | INTEGER | The ID that the next new expense will receive. |
+| `next_allowance_id` | INTEGER | The ID that the next new allowance entry will receive. |
 
 **`expenses`**
 
@@ -196,17 +217,31 @@ ExpenseKo uses a single SQLite file, `expenseko.db`, which is created automatica
 | `date` | TEXT | Date in `YYYY-MM-DD` format. |
 | `note` | TEXT | Optional note (empty by default). |
 
+**`allowances`**
+
+| Column | Type | Description |
+|---|---|---|
+| `id` | INTEGER, primary key | Unique ID of the allowance entry. |
+| `amount` | REAL | Amount added. |
+| `date` | TEXT | Date in `YYYY-MM-DD` format. |
+
+**`custom_categories`**
+
+| Column | Type | Description |
+|---|---|---|
+| `name` | TEXT, primary key | Name of a custom category added by the user. |
+
 ### Database operations
 
 | Operation | How the system does it |
 |---|---|
-| **Create** | `Storage.save()` inserts the user row and one row for each expense. New expenses are created in memory by `ExpenseTracker.add_expense()` and written to the database when the program saves. |
-| **Read** | `Storage.load()` reads the user row and all expense rows when the program starts, and rebuilds the `User` and `Expense` objects. |
-| **Update** | Adding or setting the allowance changes the user's allowance in memory, and the new value is written to the `user` table on the next save. |
-| **Delete** | `ExpenseTracker.delete_expense()` removes the expense from memory, and the following save no longer includes its row. |
+| **Create** | `Storage.save()` inserts the user row, one row for each expense, one row for each allowance entry, and one row for each custom category. New records are created in memory by the manager classes and written to the database when the program saves. |
+| **Read** | `Storage.load()` reads the user row, all expense rows, all allowance rows, and all custom category rows when the program starts, and rebuilds the `User`, `Expense` and `Allowance` objects. |
+| **Update** | Editing an expense or allowance entry updates the in-memory object. The new values are written to the database on the next save. |
+| **Delete** | `delete_expense` and `delete_allowance` remove the record from memory, and the following save no longer includes its row. |
 | **Search / filter** | There is no keyword search. Expenses are filtered by date range or month inside `ExpenseTracker` (`get_category_totals`, `get_expense_summary`), which powers the Home, Summary and Compare pages. |
 
-Note: `Storage.save()` clears both tables and writes the current data back in a single transaction, so a failed save cannot leave half-written data.
+Note: `Storage.save()` clears all tables and writes the current data back in a single transaction, so a failed save cannot leave half-written data.
 
 ## Screenshots
 
@@ -226,7 +261,7 @@ The welcome message, the remaining allowance and spent-today cards.
 
 ![Expenses page](screenshots/expenses_page.png)
 
-The new expense form, the custom category box, and the table of saved expenses with the delete button.
+The new expense form, the category selector with New/Remove category buttons, and the table of saved expenses with edit and delete buttons.
 
 **Overspending warning**
 
@@ -238,20 +273,20 @@ The pop-up that appears when an expense makes the remaining allowance go below z
 
 ![Allowance page](screenshots/allowance_page.png)
 
-Shows the current allowance and lets the user add to it or set it.
+Shows the current allowance and a table of allowance entries with add, edit and delete.
 
 **Summary page**
 
 ![Summary page](screenshots/summary_page1.png)
 ![Summary page](screenshots/summary_page2.png)
 
-The daily or weekly summary of spending.
+The daily or weekly summary of spending with a pie or bar chart.
 
 **Compare page**
 
 ![Compare page](screenshots/compare_page.png)
 
-The comparison of two weeks or two days, with the difference between them.
+The comparison of two weeks or two days, with the difference and a grouped bar chart.
 
 ## Testing
 
@@ -261,26 +296,25 @@ The system was tested manually by running the application and checking the resul
 |---|---|---|---|---|
 | 1 | First launch | Delete `expenseko.db` and run the program | The welcome screen appears; after entering a name, Home shows "Welcome, name!" | Matched expected |
 | 2 | Empty name | Click Continue with an empty name box | "Please enter a name." appears and the window stays open | Matched expected |
-| 3 | Add allowance | Enter `500` and click Add allowance | Current allowance shows ₱500.00 | Matched expected |
+| 3 | Add allowance | Enter `500`, pick a date and click Add | Current allowance shows ₱500.00 and the entry appears in the table | Matched expected |
 | 4 | Invalid allowance | Enter `abc`, then `0` | "Amount must be a number." and "Amount must be greater than zero." appear, with no crash | Matched expected |
 | 5 | Add expense | Add ₱80, Food, today, "lunch" | The message shows a remaining allowance of ₱420.00 and the expense appears in the table | Matched expected |
 | 6 | Overspending warning | With ₱100 allowance, add an expense of ₱150 | A warning pop-up says "You overspent! You are ₱50.00 over your allowance." and the expense is still saved | Matched expected |
-| 7 | Custom category | Choose "Others", type `School`, add an expense | The expense is saved as "School" and "School" appears in the category list | Matched expected |
+| 7 | Custom category | Click + New Category, type `School`, add an expense | The expense is saved as "School" and "School" appears in the category list | Matched expected |
 | 8 | Delete expense | Select a row and click Delete selected | The row disappears and its amount is returned to the allowance | Matched expected |
 | 9 | Delete with no selection | Click Delete selected with nothing selected | "Select an expense to delete first." appears | Matched expected |
-| 10 | Day summary | Open Summary, choose Day for a date with expenses | Category totals, the day's total and the remaining allowance are shown | Matched expected |
-| 11 | Week summary | Choose Week | Seven days (Monday to Sunday) are listed with their expenses, and empty days show "No expenses" | Matched expected |
-| 12 | Compare weeks | Spend ₱100 this week and ₱50 last week, then compare Weeks | "The first period cost ₱50.00 more." | Matched expected |
-| 13 | Compare days | Compare two days with different totals | Totals for both days and the difference are shown | Matched expected |
-| 14 | Persistence | Close and reopen the program | Name, allowance and expenses are all still there, and the name screen does not appear again | Matched expected |
+| 10 | Edit expense | Select a row, click Edit selected, change the amount, click Save | The table updates and the allowance adjusts accordingly | Matched expected |
+| 11 | Day summary | Open Summary, choose Day for a date with expenses | Category totals, the day's total and the remaining allowance are shown, with a pie chart | Matched expected |
+| 12 | Week summary | Choose Week | Seven days (Monday to Sunday) are listed with their expenses, and empty days show "No expenses"; a bar chart shows daily totals | Matched expected |
+| 13 | Compare weeks | Spend ₱100 this week and ₱50 last week, then compare Weeks | "The first period cost ₱50.00 more." with a grouped bar chart | Matched expected |
+| 14 | Compare days | Compare two days with different totals | Totals for both days and the difference are shown, with a grouped bar chart | Matched expected |
+| 15 | Persistence | Close and reopen the program | Name, allowance, allowances, expenses and custom categories are all still there, and the name screen does not appear again | Matched expected |
 
 ## Known Issues / Limitations
 
 - **Single user only.** The database stores one user. Multiple profiles are not supported.
-- **No editing of expenses.** An expense can be added or deleted, but not edited. To fix a mistake, delete it and add it again.
-- **Overspending is warned about, not blocked.** The app shows an "You overspent!" pop-up, but the expense is still saved and the allowance stays below zero. The warning appears again after each further expense while the allowance is negative.
-- **Custom categories depend on saved expenses.** A custom category stays in the list only while at least one saved expense uses it. Deleting the last expense in that category removes it from the list.
-- **Dates are not restricted.** Future dates can be selected when adding an expense.
+- **Overspending is warned about, not blocked.** The app shows a "You overspent!" pop-up, but the expense is still saved and the allowance stays below zero. The warning appears again after each further expense while the allowance is negative.
+- **Dates are not restricted.** Future dates can be selected when adding an expense or allowance entry.
 - **The Summary page has Day and Week views only.** The backend can summarize a whole month, but there is no month view in the interface yet.
 - **Money is stored as decimal numbers (`float`),** which can cause tiny rounding differences in very long calculations.
 - **Run from the project folder.** The database and the login image use relative paths, so start the program with `python main.py` from the folder that contains `main.py`.
